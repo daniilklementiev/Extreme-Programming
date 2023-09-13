@@ -83,38 +83,56 @@ namespace Tests
 		[TestMethod]
 		public void TestParseException()
 		{
-			// Тестирование исключений
-			Assert.ThrowsException<ArgumentException>(() => RomanNumber.Parse(null!), "Roman number parse null --> Exception");
-			var ex = Assert.ThrowsException<ArgumentException>(() => RomanNumber.Parse("   "), "Roman number parse null --> Exception");
-			// проверяем что сообщение об ошибке не пустое
-			Assert.IsFalse(String.IsNullOrEmpty(ex.Message), "Exception message is empty");
+
+			Assert.ThrowsException<ArgumentException>(
+				() => RomanNumber.Parse(null!),
+				"RomanNumber.Parse(null!) -> Exception"
+			);
+			Assert.ThrowsException<ArgumentException>(
+				() => RomanNumber.Parse(""),
+				"RomanNumber.Parse('') -> Exception"
+			);
+			var ex = 
+				Assert.ThrowsException<ArgumentException>(
+					() => RomanNumber.Parse("  "),
+					"RomanNumber.Parse('  ') -> Exception"
+				);
+			
+			Assert.IsFalse(String.IsNullOrEmpty(ex.Message),
+				"RomanNumber.Parse('') -- ex.Message not empty");
 
 			Dictionary<String, char> testCases = new()
 			{
-				{"XA", 'A' },
-				{"LB", 'B' },
-				{"vI", 'v'},
-				{"1X", '1'},
-				{"$M", '$'},
-				{"mX", 'm'},
-				{"iM", 'i'}
+				{ "XA", 'A' }, 
+                { "LB", 'B' },
+				{ "vI", 'v' },
+				{ "1X", '1' },
+				{ "$M", '$' },
+				{ "mX", 'm' },
+				{ "iM", 'i' }
 			};
 			foreach (var pair in testCases)
 			{
-
-				Assert.IsTrue(Assert.ThrowsException<ArgumentException>(
-					() => RomanNumber.Parse(pair.Key),
-					$"Roman number parse {pair.Key} --> Exception")
-					.Message.Contains($"{pair.Value}"),
-					$"Roman number parse ({pair.Key}): ex.Message contains {pair.Value}");
+				Assert.IsTrue(
+					 Assert.ThrowsException<ArgumentException>(
+						 () => RomanNumber.Parse(pair.Key),
+						 $"RomanNumber.Parse({pair.Key}) -> Exception"
+					 ) 
+					 .Message.Contains($"'{pair.Value}'"),
+					 $"RomanNumber.Parse({pair.Key}): ex.Message contains '{pair.Value}'"
+				 );
 			}
-			String num = "MAM"; // расширить набор тестов
+			String num = "MAM";  
+			ex = Assert.ThrowsException<ArgumentException>(
+				() => RomanNumber.Parse(num));
+			
+			Assert.IsTrue(ex.Message.Contains("Invalid digit", StringComparison.OrdinalIgnoreCase), "ex.Message Contains 'Invalid digit' "
+			);
+			Assert.IsTrue(
+				ex.Message.Contains($"'{num}'"),
+				$"ex.Message contains '{num}'"
+			);
 
-			ex = Assert.ThrowsException<ArgumentException>(() => RomanNumber.Parse(num));
-			// Требуется, чтоб в сообщении об ошибке было указано "invalid digit"
-			Assert.IsTrue(ex.Message.Contains("Invalid digit", StringComparison.OrdinalIgnoreCase), "ex.Message contains \"Invalid digit\")");
-			// требуется чтоб в сообщение было само число, которое парсится 
-			Assert.IsTrue(ex.Message.Contains($"{num}"), $"ex.Message contains \"{num}\")");
 		}
 
 		[TestMethod]
@@ -124,43 +142,43 @@ namespace Tests
 			{
 				{ "X C", ' ' },
 				{ "X\tC", '\t' },
-				{"X\nC", '\n' },
-				{"iiV", 'i' },
-				{"1X", '1' },
-				{"$M", '$' },
-				{"mX", 'm' },
-				{"iM", 'i' }
-
+				{ "X\nC", '\n' },
 			};
 			foreach (var pair in testCases)
 			{
-
 				Assert.IsTrue(
-				Assert.ThrowsException<ArgumentException>(
-				    	() => RomanNumber.Parse(pair.Key),
-				    	$"RomanNumber.Parse({pair.Key}) -> Exception"
-				    ).Message.Contains($"'{pair.Value}'"),
-				    $"RomanNumber.Parse({pair.Key}): ex.Message contains '{pair.Value}'");
+					 Assert.ThrowsException<ArgumentException>(
+						 () => RomanNumber.Parse(pair.Key),
+						 $"RomanNumber.Parse({pair.Key}) -> Exception"
+					 ) 
+					 .Message.Contains($"'{pair.Value}'"),
+					 $"RomanNumber.Parse({pair.Key}): ex.Message contains '{pair.Value}'"
+				 );
 			}
 
-			/*Dictionary<String, char[]> testCases2 = new()
+			Dictionary<String, char[]> testCases2 = new()
 			{
-				{"12XC", new[] {'1', '2' } },
-				{"XC12", new[] {'1', '2' } },
-				{"123XC", new[] {'1', '2', '3' } },
-				{"321X", new[] {'1', '2','3' } },
+				{ "12XC",  new[] { '1', '2' } },
+				{ "XC12",  new[] { '1', '2' } },
+				{ "123XC", new[] { '1', '2', '3' } },
+				{ "321X",  new[] { '3', '2', '1' } },
+				{ "3V2C1X",  new[] { '3', '2', '1' } },
 			};
 			foreach (var pair in testCases2)
 			{
-				var ex = Assert.ThrowsException<ArgumentException>(
-										() => RomanNumber.Parse(pair.Key),
-															$"Roman number parse {pair.Key} --> Exception");
+				var ex =
+					Assert.ThrowsException<ArgumentException>(
+						() => RomanNumber.Parse(pair.Key),
+						$"Roman number parse {pair.Key} --> Exception"
+					);
 				foreach (char c in pair.Value)
 				{
-					Assert.IsTrue(ex.Message.Contains($"'{c}'"), $"Roman number parse ({pair.Key}): ex.Message contains '{c}'");
+					Assert.IsTrue(
+						ex.Message.Contains($"'{c}'"),
+						$"Roman number parse ({pair.Key}): ex.Message contains '{c}'"
+					);
 				}
-
-			}*/
+			}
 		}
 
 		[TestMethod]
@@ -177,11 +195,17 @@ namespace Tests
 				Assert.AreEqual(value, RomanNumber.Parse(str).Value, $"Dubious equality '{str}' --> '{value}'");
 			}
 
-			// 'IIX', 'VVX' - правильные
+			
 			String[] dubious2 = { "IIX", "VVX" };
-			foreach (var str in dubious)
+			foreach (var str in dubious2)
 			{
-				Assert.IsNotNull(RomanNumber.Parse(str), $"Dubious '{str}' cause NULL");
+				// 'IIX', 'VVX' - правильные
+				/*
+				Assert.IsNotNull(RomanNumber.Parse(str), $"Dubious '{str}' cause NULL");*/
+
+				// изменяются правила - 'IIX', 'VVX' - не правильные
+				Assert.ThrowsException<ArgumentException>(() => RomanNumber.Parse(str), $"Dubious '{str}' cause Exception");
+
 			}
 
 			// '12XC' XC12' - неправильные. Цифр не должно быть. Пример:
@@ -214,6 +238,12 @@ namespace Tests
 				{ 5, "V"          },
 				{ 90, "XC"        },
 				{ 40, "XL"        },
+			    {2000, "MM"},
+			    {1050, "ML"},
+			    {1115, "MCXV"},
+			    {1400, "MCD"},
+			    {1935, "MCMXXXV"},
+			    {2023, "MMXXIII"}
 			};
 
 			foreach (var testCase in testCases)
@@ -225,22 +255,18 @@ namespace Tests
 			}
 		}
 
-		// Cross test
 		[TestMethod]
 		public void CrossTestParseToString()
 		{
-			/* Д.З. Доповнити тестові кейси для TestToString(),
-			* забезпечити, щоб у тестах траплялись усі цифри та їх
-			* комбінації.
-			* Доробити CrossTestParseToString(), забезпечити їх
-			* проходження
-			*/
-			for(int i = 0; i < 697; i++)
+			for (int i = 0; i < 697; i++)
 			{
 				int rnd = new Random().Next(-5000, 5000);
-				Random r = new(rnd);
+				RomanNumber r = new(rnd);
 				Assert.IsNotNull(r);
-				Assert.AreEqual(rnd, RomanNumber.Parse(r.ToString()).Value, $"Parse '{r}' --> '{rnd}'");
+				Assert.AreEqual(
+					rnd,
+					RomanNumber.Parse(r.ToString()).Value,
+					$"Parse('{r}'.ToString()) --> '{rnd}'");
 			}
 		}
 	}

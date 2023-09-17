@@ -15,6 +15,10 @@ namespace App
 		private const string INVALID_STRUCTURE_MESSAGE = "Invalid roman number structure";
 		private const string INVALID_DIGIT_FORMAT = "{0} '{1}'";
 		private const string INVALID_DIGITS_FORMAT = "Pase error '{0}'. Ivalid digit(s): '{1}'";
+		private const String PLUS_NULL_ARGUMENT_MESSAGE = "Illegal Plus() invocation with wull argument";
+		private const String MINUS_NULL_ARGUMENT_MESSAGE = "Illegal Minus() invocation with wull argument";
+		private static String InvalidDigitsFormatMessage(List<char> invalidChars) => String.Join(",", invalidChars.Select(DigitDecorator));
+		private static String DigitDecorator(char c) => $"'{c}'";
 
 		public int Value { get; set; } 
 		
@@ -107,13 +111,12 @@ namespace App
 			if (invalidChars.Count > 0)
 			{
 				throw new ArgumentException(
-					// $"'{input}' {INVALID_DIGIT_MESSAGE} '{String.Join(", ", invalidChars.Select(c => $"'{c}'"))}' "
 					String.Format(
-						INVALID_DIGITS_FORMAT, 
-						input, 
-						String.Join(", ", invalidChars.Select(c => $"'{c}'"))
-					)
-					);
+						INVALID_DIGITS_FORMAT,
+						input,
+						// String.Join(", ", invalidChars.Select(DigitDecorator))
+						InvalidDigitsFormatMessage(invalidChars)
+					));
 			}
 
 			#endregion
@@ -170,6 +173,51 @@ namespace App
 				Value = firstDigitIndex == 0 ? result : -result
 				/*Value = result * (1 - (firstDigitIndex << 1))*/
 			};
+		}
+
+		public RomanNumber Plus(RomanNumber other)
+		{
+			if (other is null)
+			{
+				throw new ArgumentNullException(PLUS_NULL_ARGUMENT_MESSAGE);
+			}
+			return new(this.Value + other.Value);
+		}
+
+		public RomanNumber Minus(RomanNumber other)
+		{
+			if (other is null)
+			{
+				throw new ArgumentNullException(MINUS_NULL_ARGUMENT_MESSAGE);
+			}
+			return new(this.Value - other.Value);
+		}
+
+		public static RomanNumber Sum(params RomanNumber[] numbers)
+		{
+			if (numbers == null!)
+			{
+				return null!;
+			}
+
+			if (numbers.Length > 0)
+			{
+				int nullableNumbersCount = 0;
+				foreach (var number in numbers)
+				{
+					if (number == null!)
+					{
+						nullableNumbersCount++;
+					}
+				}
+
+				if (nullableNumbersCount == numbers.Length)
+				{
+					return null!;
+				}
+			}
+
+			return new(numbers.Sum(number => number?.Value ?? 0));
 		}
 	}
 }

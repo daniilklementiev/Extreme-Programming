@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.Metrics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,14 +10,16 @@ namespace App
     public class RomanNumber
     {
 		private const char   ZERO_DIGIT = 'N';
-		private const string MINUS_SIGN = "-";
+		private const char   MINUS_SIGN = '-';
+		private const char   PLUS_SIGN  = '+';
+		private const int    OPERANDS_COUNT = 2;
 		private const string INVALID_DIGIT_MESSAGE = "Parse error. Invalid digits:";
 		private const string EMPTY_INPUT_MESSAGE = "Empty or NULL input";
 		private const string INVALID_STRUCTURE_MESSAGE = "Invalid roman number structure";
 		private const string INVALID_DIGIT_FORMAT = "{0} '{1}'";
 		private const string INVALID_DIGITS_FORMAT = "Pase error '{0}'. Ivalid digit(s): '{1}'";
-		private const String PLUS_NULL_ARGUMENT_MESSAGE = "Illegal Plus() invocation with wull argument";
-		private const String MINUS_NULL_ARGUMENT_MESSAGE = "Illegal Minus() invocation with wull argument";
+		private const string PLUS_NULL_ARGUMENT_MESSAGE = "Illegal Plus() invocation with wull argument";
+		private const string MINUS_NULL_ARGUMENT_MESSAGE = "Illegal Minus() invocation with wull argument";
 		private static String InvalidDigitsFormatMessage(List<char> invalidChars) => String.Join(",", invalidChars.Select(DigitDecorator));
 		private static String DigitDecorator(char c) => $"'{c}'";
 
@@ -219,5 +222,67 @@ namespace App
 
 			return new(numbers.Sum(number => number?.Value ?? 0));
 		}
+
+
+
+		// TODO: REFACTORING
+		public static RomanNumber Eval(string input)
+		{
+			if (string.IsNullOrEmpty(input))
+			{
+				throw new ArgumentNullException(EMPTY_INPUT_MESSAGE);
+			}
+
+			string trimmedInput = input.Trim();
+			if (trimmedInput.Length > 1)
+			{
+				if (trimmedInput.Contains(PLUS_SIGN))
+				{
+					string[] res = trimmedInput.Split(PLUS_SIGN, OPERANDS_COUNT);
+
+					if (res.Length == 0) { return null!; }
+					if (res.Length == 1)
+					{
+						return RomanNumber.Parse(res[0]);
+					}
+					int firstOp = RomanNumber.Parse(res[0]).Value;
+					int secondOp = RomanNumber.Parse(res[1]).Value;
+					return new(firstOp + secondOp);
+				}
+				else
+				{
+					if (trimmedInput.StartsWith(MINUS_SIGN))
+					{
+						int i2 = trimmedInput.IndexOf(MINUS_SIGN, 1);
+						if (i2 != -1)
+						{
+							// 0 to i2 - 1st; i2 to end - 2nd
+							string op1 = (string)trimmedInput.Substring(0, i2);
+							string op2 = (string)trimmedInput.Substring(i2 + 1);
+							return new(RomanNumber.Parse(op1).Value - RomanNumber.Parse(op2).Value);
+						}
+						else
+						{
+							return RomanNumber.Parse(trimmedInput);
+						}
+					}
+					else
+					{
+						// X - -X = X -X
+						string[] resStr = trimmedInput.Split(MINUS_SIGN, OPERANDS_COUNT);
+						int firstOp = RomanNumber.Parse(resStr[0]).Value;
+						int secondOp = RomanNumber.Parse(resStr[1]).Value;
+						int result = firstOp - secondOp;
+						return new RomanNumber(result);
+					}
+				}
+			}
+			else
+			{
+				return new RomanNumber(RomanNumber.Parse(trimmedInput).Value);
+			}
+		}
+
+
 	}
 }

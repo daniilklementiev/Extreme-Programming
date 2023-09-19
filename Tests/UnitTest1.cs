@@ -403,5 +403,77 @@ namespace Tests
 				);
 			}
 		}
+		
+		[TestMethod]
+		public void TestEval()
+		{
+			RomanNumber input = RomanNumber.Eval("V+V"); // 10
+			RomanNumber r1 = RomanNumber.Eval("-V-X");
+			RomanNumber r2 = RomanNumber.Eval("-V - -X");
+			RomanNumber r3 = RomanNumber.Eval("-V--X");
+			RomanNumber r4 = RomanNumber.Eval("-V+-X");
+			RomanNumber r5 = RomanNumber.Eval("V + -X");
+			RomanNumber r6 = RomanNumber.Eval("N-I");
+			RomanNumber r7 = RomanNumber.Eval("I-N");
+
+
+			Assert.IsNotNull(RomanNumber.Eval("V+V")); // if not null
+			Assert.IsNotNull(RomanNumber.Eval("V-V")); // if not null
+			Assert.IsNotNull(RomanNumber.Eval("V")); // if not null
+			Assert.IsInstanceOfType(RomanNumber.Eval("V+V"), typeof(RomanNumber));  // check type
+			Assert.IsInstanceOfType(RomanNumber.Eval("V-V"), typeof(RomanNumber));  // check type
+			Assert.AreEqual("X",   input.ToString(),            "Sum of input.ToString() === X"  ); // equal check
+			Assert.AreEqual("-XV", r1.ToString(),    "Sum of input.ToString() === -XV"); // equal check
+			Assert.AreEqual("V", r2.ToString(), "Sum of input.ToString() === -XV"); // equal check
+			Assert.AreEqual("V", r3.ToString(),   "Sum of input.ToString() === -XV"); // equal check
+			Assert.AreEqual("-I", r6.ToString(),   "Sum of input.ToString() === -XV"); // equal check
+			Assert.AreEqual("I", r7.ToString(),  "Sum of input.ToString() === -XV"); // equal check
+		    var ex = Assert.ThrowsException<ArgumentNullException>(() => RomanNumber.Eval(null!),"Evaluate `null!` throws ArgumentNullException");
+
+			Random r = new();
+			for (int i = 0; i < 100; i++)
+			{
+				RomanNumber o1 = new(r.Next(-5000, 5000));
+				RomanNumber o2 = new(r.Next(-5000, 5000));
+				RomanNumber res = RomanNumber.Eval($"{o1} + {o2}"); // evaluate string
+				Assert.AreEqual(RomanNumber.Sum(o1, o2).Value, res.Value);
+				Assert.AreEqual(o1.Plus(o2).Value, res.Value);
+			}
+		}
 	}
 }
+
+/* Завдання до заліку
+* Розробити метод обчислення виразів "Eval"
+* Семантика:
+*  RomanNumber res = RomanNumber.Eval("XL + II")
+* Дозволені обмеження: 
+*  операції дві - додавання та віднімання
+*  аргументів - не більше двох, з одним аргументом - повертає
+*   сам аргумент (у вигляді RomanNumber), з двома - результат
+*   виразу
+* Задачі:
+* І.
+*  - Складаємо тести, на першому етапі тільки для додаваня
+*   = На коректні значення
+*     - NotNull
+*     - Type
+*     - Algo
+*      = реперні значення
+*      = випадкове тестування
+*     - Крос тестування
+*      = з методом Plus
+*      = з методом Sum
+*  = На некоректні значення
+*   - тип виключення
+*   - повідомлення у виключенні
+*   - винятки для порожних виразів
+* ІІ. 
+*  Реалізація
+* ІІІ.
+*  Те ж для віднімання
+* IV.
+*  Реалізація
+* V.
+*  Обговорення, перероблення, рефакторинг
+*/
